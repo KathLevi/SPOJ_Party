@@ -1,89 +1,51 @@
 #include <iostream>
-#include <map>
-#include <cstdio>
 #include <algorithm>
-
 using namespace std;
+int fee[101];			//array of the fee for party[i]
+int fun[101];			//array of the fun for party[i]
 
-//find the optimal set of parties that offer the most fun
-//keep in mind that your budget need not necessarily be reached
-//achieve the highest possible fun level and do not spend more money than absolutely necessary
+void maxFun(int budget, int n) {
+	int w, k, total = 0;
+	int B[502];
 
-/*OUTPUT:
-	for each test case, output:
-	1) the sum of the entrance fees and 
-	2) the sum of all the fun values of an optimal solution separated by a single space
-*/
-void calculate(int budget, int n, int fun[101], int fee[101]);
+	for (w = 0; w < budget; w++)
+		B[w] = 0;
 
-int main() {
-	int fee[101], fun[101];
-	int budget, n, val;
-	
-	//first line
-	cin >> budget;		//party budget (0 - 500)
-	cin >> n;			//number n of parties (0 - 100)
-	//cin.ignore();		//dump the newline character left by cin
-
-	if (budget == 0 && n == 0) {
-		return 0;
+	for (k = 0; k < n; k++) {
+		for (w = budget; w >= fee[k]; w--) {
+			if (B[w - fee[k]] + fun[k] > B[w])
+				B[w] = B[w - fee[k]] + fun[k];
+		}
 	}
 
-	do {
-		// the following n lines contain 2 numbers:
-		for ( int i = 0; i < n; i++) {
-			cin >> val;
-			fee[i] = val;		//1)the entrance fee of each parties (5-25 francs)
-			cin >> val;
-			fun[i] = val;		// 2)the amount of fun of each party (0-10)
-		}
-		if (budget == 0 || n == 0)
-			cout << "0 0" << endl;
-		else
-			calculate(budget, n, fun, fee);	//call function to detmine the 	
-
-		cin >> budget;		//party budget (0 - 500)
-		cin >> n;			//number n of parties (0 - 100)
-		//cin.ignore();		//dump the newline character left by cin
-	} while (budget != 0 && n != 0);
-	
-	return 0;
+	int b = budget; 
+	while (B[b] == B[budget])
+		b--;
+	cout << b + 1 <<" " << B[b + 1] << endl;
 }
 
-void calculate(int budget, int n, int fun[101], int fee[101]){
-	int sumFee = 0;
-	int uno[101][501] = { 0 }, dos[101][501] = { 0 };
+int main() {
+	int budget = -1;
+	int n = -1;			//budget, n (the number of parties)
+	
+	do {
+		//first line to read in budget and n
+		cin >> budget;		//party budget (0-500)
+		cin >> n;			//number n of parties (0-100)
 
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < budget; j++) {
-			if (i == 0 || j == 0) {
-				uno[i][j] = 0;
-				dos[i][j] = 0;
+		if (budget == 0 && n == 0)
+			return 0;
+	
+		if (budget == 0 || n == 0)
+			cout << "0 0" << endl;
+		else {
+			for (int i = 0; i < n; i++) {
+				cin >> fee[i];		//entrance fee of each party (5-25 francs)
+				cin >> fun[i];		//amount of fun per party (0- 10)
 			}
-			else if (fee[i - 1] <= j) {
-				uno[i][j] = max(uno[i - 1][j], fun[i - 1] + uno[i - 1][j - fee[i - 1]]);
-				if (fun[i - 1] + uno[i - 1][j - fee[i - 1]] > uno[i - 1][j])
-					dos[i][j] = 1;
-				else
-					dos[i][j] = -1;
-			}
-			else {
-					dos[i][j] = -1;
-					uno[i][j] = uno[i - 1][j];
-			}
+			maxFun(budget, n);		//determine the max fun without going over budget
 		}
-	}
+	} while (budget != 0 && n != 0);
 
-	int items = n, bud = budget;
-	while (items > 0) {
-		if (dos[items][bud] == 1) {
-			sumFee += fee[items - 1];
-			--items;
-			bud -= fee[items];
-		}
-		else
-			--items;
-	}
-
-	cout << sumFee << " " << uno[n][budget] << endl;
+	return 0;
 }
