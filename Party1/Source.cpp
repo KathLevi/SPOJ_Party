@@ -5,7 +5,7 @@ using namespace std;
 
 void maxFun(int budget, int n, vector<int> &sumFun, vector<int> &sumFee, int *fun, int *fee) {
 	int w, k, total = 0;
-	int B[502];
+	int B[502] = { -1 };
 
 	for (w = 0; w < budget; w++)
 		B[w] = 0;
@@ -20,8 +20,9 @@ void maxFun(int budget, int n, vector<int> &sumFun, vector<int> &sumFee, int *fu
 	int b = budget; 
 	while (B[b] == B[budget])
 		b--;
-	sumFun.push_back(B[b + 1]);
-	sumFee.push_back(b + 1);
+	b++;
+	sumFun.push_back(B[b]);
+	sumFee.push_back(b);
 }
 
 int getFirstLine(int &budget, int &n, vector<int> &sumFun, vector<int> &sumFee) {
@@ -33,7 +34,7 @@ int getFirstLine(int &budget, int &n, vector<int> &sumFun, vector<int> &sumFee) 
 		return 3;
 	else if (budget == 0 || n == 0) {
 		sumFun.push_back(0);
-		sumFee.push_back(0);
+		sumFee.push_back(1);
 		return -1;
 	}
 	else {
